@@ -1,0 +1,35 @@
+@import './components/_login.scss';
+@import './components/modal';
+
+
+.calendar-screen{
+    height: 100vh;
+    width: 100vw;
+    overflow: auto;
+
+    
+    &::-webkit-scrollbar-track {
+  
+      display: none;
+      }
+     
+      &::-webkit-scrollbar {
+        width: 1px;
+        background-color: transparent;
+      }
+     
+      &::-webkit-scrollbar-thumb {
+        border-radius: 10px;
+        background-color:transparent;
+      }
+}
+
+
+.rbc-calendar{
+    height: 100vh !important;
+    padding: 0 20px;
+}
+
+.rbc-header{
+    height: 30px;
+}
