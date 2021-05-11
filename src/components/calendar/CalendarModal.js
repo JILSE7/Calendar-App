@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {customStyles} from '../../helpers/modal'
 
@@ -8,6 +8,7 @@ import DateTimePicker from 'react-datetime-picker';
 import moment from 'moment';
 import Swal from 'sweetalert2';
 import { CloseM } from '../../actions/ui';
+import { eventAddNew, eventCleanActive, eventUpdated } from '../../actions/calendar';
 
 //Raiz del HTML
 Modal.setAppElement('#root');
@@ -15,28 +16,30 @@ Modal.setAppElement('#root');
 const nowDate = moment().minutes(0).seconds(0).add(1, 'hours');
 const endDate = nowDate.clone().add(1, 'hours');
 
+const initialEvent = {
+  title: "",
+  notes: "",
+  start: nowDate.toDate(),
+  end: endDate.toDate(),
+
+}
+
 
 export const CalendarModal = () => {
 
   //estado global
   const {openModal} = useSelector(state => state.ui)
-  console.log(openModal);
+  const {activeEvent} = useSelector(state => state.calendar)
   const dispatch = useDispatch();
 
     //States
     const [startDate, setStart] = useState(nowDate.toDate());
     const [finishDate, setFinishDate] = useState(endDate.toDate());
     const [titleValid, settitleValid] = useState(true)
-    const [formValues, setformValues] = useState({
-      title: "Evento",
-      notes: "",
-      start: nowDate.toDate(),
-      finish: endDate.toDate(),
-
-    })
+    const [formValues, setformValues] = useState(initialEvent)
 
     //Destructuring
-    const {title, notes, start, finish}  = formValues;
+    const {title, notes, start, end}  = formValues;
     const handleformChange = (e)=>{
       setformValues({
         ...formValues,
@@ -51,14 +54,14 @@ export const CalendarModal = () => {
     }
     const handleFinishtDateChange = (e)=> {
       setFinishDate(e);
-      setformValues({...formValues, finish: e})
+      setformValues({...formValues, end: e})
     }
 
     //Submit del formulario
     const handleSubmit = (e)=>{
       e.preventDefault();
       const momentStart = moment(start);
-      const momentFinish = moment(finish);
+      const momentFinish = moment(end);
       
       if(momentStart.isSameOrAfter(momentFinish))return Swal.fire("Fechas incorrectas", "La fecha de inicio no puede ser mayor a la fecha de fin", "error");
         
@@ -69,6 +72,22 @@ export const CalendarModal = () => {
 
       //todo: realizar la grabacion
       settitleValid(true);
+
+      if(activeEvent){
+        dispatch(eventUpdated(formValues))
+      }else{
+        dispatch(eventAddNew({
+          ...formValues,
+          id: Date.now(),
+          user: {
+            _id: '123',
+            name: 'said'
+          }
+        }))
+      }
+
+      
+
       Swal.fire('Excelente', "Todo correcto", 'success')
 
     }
@@ -76,7 +95,20 @@ export const CalendarModal = () => {
     //Dipatch de abrir y cerrar modal
     const closeModal = ()=>{
       dispatch(CloseM())
+      dispatch(eventCleanActive())
+      setformValues(initialEvent)
    }
+
+   
+    //UseEffect
+    useEffect(() => {
+      if(activeEvent){
+          setformValues(activeEvent)
+      }else{
+        setformValues(initialEvent)
+      }
+  }, [activeEvent, setformValues])
+
    
 
    

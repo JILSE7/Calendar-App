@@ -1,8 +1,4 @@
 
-const selectEd = (e)=>{
-    // console.log(e);
-}
-
 const onViewChange = (e, setState) =>{
 
     setState(e);
@@ -10,6 +6,5 @@ const onViewChange = (e, setState) =>{
 }
 
 export {
-    selectEd,
     onViewChange
 }
